@@ -35,7 +35,6 @@ void output_vec(int myid, double* vec, int len)
 		printf("%.15f ", vec[i]);
 	}
 	printf("\n");
-	
 }
 
 void output_vec_tag(int myid, double* vec, int len, char* tag)
@@ -57,7 +56,6 @@ int LU(double* up, double* mid, double* low, int m)
 		mid[i + 1] = mid[i + 1] - low[i]*up[i];
 	}
 	return 0;
-
 }
 
 void solve(double* up, double* mid, double* low, double* b, double* x, int m)
@@ -90,7 +88,6 @@ void vec_sub_vec(double* vec1, double* vec2, int m)
 	{
 		vec1[i] = vec1[i] - vec2[i];
 	}
-	
 }
 
 double cycle(double low, double mid, double up, 
@@ -195,14 +192,19 @@ double cycle(double low, double mid, double up,
     }
 
 }
+
+
 double id(double x)
 {
     return x;
 }
+
+
 double sq(double x)
 {
     return x*x;
 }
+
 
 double basis(double x)
 {
@@ -224,12 +226,14 @@ double basis(double x)
     }
 }
 
+
 double scl_basis(double i, double h, double a, double x)
 {
     double in = (x-a) / h + 2 - i;
     //printf("%.4f, %.2f, %.2f, %.2f\n", in, a, h, x);
     return basis(in);
 }
+
 
 void generate_b(int myid, int nprocs, 
                 int q, double a, double b, 
@@ -270,6 +274,7 @@ void generate_b(int myid, int nprocs,
     }
 }
 
+
 void generate_mat(int myid, 
 				int nprocs, 
 				int q, 
@@ -308,6 +313,7 @@ void generate_mat(int myid,
     }
 }
 
+
 double* partition_2(int myid, 
 					int nprocs, 
 					int lneighbour, 
@@ -323,12 +329,10 @@ double* partition_2(int myid,
 					double A3, 
 					double A4, 
 					double B1, 
-					double* output )
+					double* output)
 {
 	double B2 = 0;
     double C2 = 0;   
-
-    
 	//solve(up, mid, low, b, x, 3);
 	//output_vec(x, 4);
 	LU(up1, mid1, low1, q-1);
@@ -395,7 +399,6 @@ double* partition_2(int myid,
 
 	double x12 = cycle(C2, A4, B2, b12, myid, lneighbour, rneighbour, nprocs, 2);
 
-
     if(myid == 0)
     {
         double xsend = x12;
@@ -405,7 +408,6 @@ double* partition_2(int myid,
 	    vec_sub_vec(b11, A2, q-1);
             
         MPI_Wait(&req, MPI_STATUS_IGNORE);
-
     }
     if(myid == nprocs - 1)
     {
@@ -422,8 +424,6 @@ double* partition_2(int myid,
         double xsend = x12;
         double x22;
         MPI_Isend(&xsend, 1, MPI_DOUBLE, rneighbour, 0, MPI_COMM_WORLD, &req);
-
-
         MPI_Recv(&x22, 1, MPI_DOUBLE, lneighbour, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         
 	    vec_mult_scal(A2, x12, q-1);
@@ -441,6 +441,7 @@ double* partition_2(int myid,
     return 0;
 }
 
+
 double eval_basis(int myid, int q, int i, double h, double a, double x, double* coeffs)
 {
     int first_i = myid * q;
@@ -456,6 +457,7 @@ double eval_basis(int myid, int q, int i, double h, double a, double x, double* 
 //double scl_basis(double i, double h, double a, double x)
 }
 
+
 void eval_basis_vec(int myid, int nprocs, 
                     int q, double h, 
                     double a, double b, 
@@ -463,7 +465,6 @@ void eval_basis_vec(int myid, int nprocs,
 {
     int left_i;
     double left;
-    
     if(myid == 0)
     {
         left_i = 0;
@@ -491,7 +492,6 @@ void eval_basis_vec(int myid, int nprocs,
                 y = eval_basis(myid, q, left_i + i, h, a, y, coeffs);
                 x[i*3 + j] = y;
                 //printf("%.2f\n", y);
-
             }
         }
         x[3 * (q -2)] = eval_basis(myid, q, left_i + q - 3, h, a, b, coeffs);
@@ -517,7 +517,6 @@ void eval_func(int myid, int nprocs,
                 double a, double b, 
                 double* x, double func(double))
 {
-
     int left_i;
     double left;
     
@@ -546,7 +545,6 @@ void eval_func(int myid, int nprocs,
                 double y = left + i * h + j * h / 3;
                 y = func(y);
                 x[i*3 + j] = y;
-
             }
         }
         x[3 * (q -2)] = func(b);
@@ -564,7 +562,6 @@ void eval_func(int myid, int nprocs,
             }
         }
     }
-
 }
 
 
@@ -577,7 +574,6 @@ double get_max_diff(double* spline, double* fvals, double* errs_nodes, int num)
         if(i % 3 == 0)
         {
             errs_n = fmax(errs_n, fabs(spline[i] - fvals[i]));
-
         }
         max = fmax(max, fabs(spline[i] - fvals[i]));
     }
@@ -667,7 +663,6 @@ int main(int argc, char** argv)
         }
         else if(myid == nprocs - 1)
         {
-
             s_buf[0] = c[0];
             s_buf[1] = c[1];
             MPI_Isend(s_buf, 2, MPI_DOUBLE, lneighbour, 0, MPI_COMM_WORLD, &req);
@@ -704,7 +699,6 @@ int main(int argc, char** argv)
         }
         else
         {
-
             err = get_max_diff(out, fvals, &n_err, 3 * (q-2) + 1);
         }
         double max_err;
