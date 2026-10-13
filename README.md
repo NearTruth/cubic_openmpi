@@ -6,3 +6,5 @@ The large matrix is first partitioned and reduced into a smaller tridiagonal sys
 The reduced system is solved using cyclic reduction.
 The network topology is assumed to be a fully connected network
 
+Compiling and linking requires use of mpicc. 
+
