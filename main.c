@@ -147,12 +147,12 @@ double cycle(double low, double mid, double up,
     {
         // send mid, up to myid + pow2 / 2 send mid, low to myid - pow2 / 2;
 
-        double lmid_s[3];
+        double lmid_s[4];
         lmid_s[0] = low;
         lmid_s[1] = mid;
         lmid_s[2] = up;
         lmid_s[3] = b;
-        double rmid_s[3];
+        double rmid_s[4];
         rmid_s[0] = low;
         rmid_s[1] = mid;
         rmid_s[2] = up;
