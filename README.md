@@ -1,10 +1,33 @@
-Cubic spline interpolation solver written using C and OpenMPI. 
+# Parallel Cubic Spline Interpolation Solver (C, OpenMPI)
 
-The problem reduces to solving tridiagonal systems using cubic basis functions. 
+Solves the cubic spline interpolation problem by reducing it to a
+tridiagonal system and solving that system in parallel with MPI.
 
-The large matrix is first partitioned and reduced into a smaller tridiagonal system of size n where n is the number of participating computers in the network.
-The reduced system is solved using cyclic reduction.
-The network topology is assumed to be a fully connected network
+## Approach
+- Partition the tridiagonal system across processes.
+- Reduce it to a smaller system of size p (one block per process).
+- Solve the reduced system with cyclic reduction.
+- Back-substitute to recover the full solution.
 
-Compiling and linking requires use of mpicc. 
+Assumes a fully connected network of processes.
 
+## Build
+mpicc -o spline main.c -lm
+
+## Run
+mpiexec -np 8 ./spline
+
+## Expected output
+For f(x) = sin(x), convergence is 4th order on nodes and 3rd order
+on general points as n doubles. For f(x) = x^2, the solver returns
+the exact solution (machine precision).
+
+Default output is for sin.
+
+## Files
+- main.c
+
+## Limitations
+- No pivoting; assumes a diagonally dominant system.
+- No fault tolerance; all processes must remain alive.
+- Tested on up to 8 processes.
