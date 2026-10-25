@@ -1,7 +1,6 @@
 #include "mpi.h"
 #include<stdio.h>
 #include<math.h>
-#define NELEMS(x) (sizeof(x)/sizeof(x[0]))
 
 void output_mat(int myid, double* up, 
                 int size_up, double* mid, int size_mid, 
@@ -48,6 +47,7 @@ void output_single(int myid, double d)
 	printf("%d single: ", myid);
 	printf("%.15f\n", d);
 }
+
 int LU(double* up, double* mid, double* low, int m)
 {
 	for(int i = 0; i< m-1; i++)
@@ -204,7 +204,6 @@ double sq(double x)
 {
     return x*x;
 }
-
 
 double basis(double x)
 {
@@ -606,6 +605,15 @@ int main(int argc, char** argv)
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &myid);
     MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+    if(!((nprocs > 0) && ((nprocs & (nprocs-1)) == 0)))
+    {
+	if(myid == 0)
+	{
+	    printf("number of processors %d must be power of 2\n", nprocs);
+	}
+        MPI_Finalize();    
+        return -1;
+    }
     lneighbour = myid - 1;
     rneighbour = myid + 1;
     double a = 0;
@@ -630,7 +638,7 @@ int main(int argc, char** argv)
 	    double b1[q-1];
 	    double b2;
 
-        generate_b(myid, nprocs, q, a, b, num[i], sq, b1, &b2);
+        generate_b(myid, nprocs, q, a, b, num[i], sin, b1, &b2);
         partition_2(myid, nprocs, lneighbour, rneighbour, 
                     q, up, mid, low, A2, C1, b1, b2, A3, A4, B1, c);
         MPI_Request req; MPI_Status istatus;
@@ -690,7 +698,7 @@ int main(int argc, char** argv)
         double out[3 * q];
         eval_basis_vec(myid, nprocs, q, h, a, b, out, c_extended);
         double fvals[3 * q];
-        eval_func(myid, nprocs, q, h, a, b, fvals, sq);
+        eval_func(myid, nprocs, q, h, a, b, fvals, sin);
         double err;
         double n_err;
         if(myid != nprocs -1)
@@ -708,8 +716,11 @@ int main(int argc, char** argv)
         errs[i] = max_err;
         n_errs[i] = max_n_err;
     }
-    output_vec(myid, errs, 6);
-    output_vec(myid, n_errs, 6);
+    if(myid == 0)
+    {
+        output_vec_tag(myid, errs, 6, "max err, proc ");
+        output_vec_tag(myid, n_errs, 6, "max err on nodes, proc ");
+    }
     MPI_Finalize();    
-	return 0;
+    return 0;
 }
