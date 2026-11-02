@@ -28,4 +28,5 @@ Default output is for sin.
 ## Limitations
 - No pivoting; assumes a diagonally dominant system.
 - No fault tolerance; all processes must remain alive.
+- Number of processors must be a power of 2 to accommodate for the cyclic reduction.
 - Tested on up to 8 processes.
