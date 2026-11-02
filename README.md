@@ -9,8 +9,6 @@ tridiagonal system and solving that system in parallel with MPI.
 - Solve the reduced system with cyclic reduction.
 - Back-substitute to recover the full solution.
 
-Assumes a fully connected network of processes.
-
 ## Build
 mpicc -o spline main.c -lm
 
