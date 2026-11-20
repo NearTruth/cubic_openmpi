@@ -1,6 +1,6 @@
-# Parallel Cubic Spline Interpolation Solver (C, OpenMPI)
+# Parallel Quadratic Spline Interpolation Solver (C, OpenMPI)
 
-Solves the cubic spline interpolation problem by reducing it to a
+Solves the quadratic spline interpolation problem by reducing it to a
 tridiagonal system and solving that system in parallel with MPI.
 
 ## Approach
